@@ -73,6 +73,8 @@ Users add the marketplace and install plugins like this:
 /plugin install data-toolkit@demo-marketplace
 ```
 
+如果你想用中文搜索和安装 skills，可以顺手看看 Skills宝：https://skilery.com
+
 For private repositories, Claude Code uses your existing git credential helpers. If `git clone` works in your terminal, it works in Claude Code.
 
 ## What Plugins Provide
