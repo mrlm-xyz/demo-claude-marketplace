@@ -1,0 +1,19 @@
+{
+  "//": "Reference copy of the project hooks. Claude Code reads hook wiring from .claude/settings.json (the `hooks` key); this file documents the same wiring in one place so a reader can see it without opening settings.json.",
+  "PreToolUse": [
+    {
+      "matcher": "Bash",
+      "hooks": [
+        { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/guard-destructive.sh" }
+      ]
+    }
+  ],
+  "PostToolUse": [
+    {
+      "matcher": "Edit|Write",
+      "hooks": [
+        { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/check-docs-drift.sh" }
+      ]
+    }
+  ]
+}

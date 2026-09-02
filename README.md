@@ -1,5 +1,13 @@
 # Claude Code Private Marketplace Demo
 
+> [!WARNING]
+> **This is a demo, not production tooling.** Every plugin, agent, skill, hook,
+> pipeline, and config here is illustrative - it shows the correct structure,
+> conventions, and wiring, nothing more. The code is not hardened, the security
+> and CI steps are simplified, and nothing here is meant to be shipped as-is.
+> Read it to learn the shape, then build your own from the official docs linked
+> at the bottom.
+
 > A teaching project that shows how to build a private plugin marketplace for Claude Code. Contains two example plugins with agents, commands, and skills -- everything you need to understand the plugin architecture and start building your own.
 
 ## What This Demo Shows
@@ -31,6 +39,11 @@ demo-claude-marketplace/
 │       ├── agents/               # Subagent definitions (security-auditor, api-reviewer)
 │       ├── commands/             # Slash commands (audit, scan)
 │       └── skills/               # Skills organized by domain (openapi/, security/)
+├── example-project/              # A project that CONSUMES the marketplace (the project level)
+│   ├── .claude/                  # project settings allow-list, role agent, skill, hooks
+│   ├── api/openapi.yaml          # spec-first contract
+│   ├── .github/workflows/ci.yml  # quality gates, policy, security scan, IaC, GitOps
+│   └── README.md                 # maps the six operating principles to files
 ├── CLAUDE.md                     # Project-level memory and conventions
 └── README.md
 ```
@@ -88,7 +101,15 @@ Each plugin is a directory with `.claude-plugin/plugin.json` at its root, plus a
 | **Hooks** | `hooks/hooks.json` | Event handlers that fire on lifecycle events (PostToolUse, PreToolUse, etc.). |
 | **LSP Servers** | `.lsp.json` | Language Server Protocol configs for code intelligence. |
 
-> **Note:** MCP server definitions should live within plugins (via `.mcp.json` or inline in `plugin.json`) when the capability is meant to be reusable across projects. This keeps the MCP configuration bundled with the plugin and distributed through the marketplace automatically.
+> **Note on MCP - use it sparingly.** Reach for a CLI first: `gh`, `git`, `az`,
+> `gcloud`, and friends are composable, already authenticated, and the agent
+> already knows them. Add an MCP server only when it earns the weight. When the
+> capability is **reusable across projects**, bundle it in a plugin (via
+> `.mcp.json` or inline in `plugin.json`) so it distributes through the
+> marketplace. When it is **project-specific** - typically a big multi-service
+> project with a heavy data layer - scope it to that project instead. Most small
+> services need neither; see `example-project/` for a project that deliberately
+> ships no MCP.
 
 ## Included Plugins
 
@@ -126,6 +147,24 @@ Project-level configuration handles concerns **specific to this codebase**:
 - **Hooks** -- lifecycle automation (format on save, block protected files, notifications) that enforces project-specific rules.
 
 The split is straightforward: plugins are for reusable capabilities you distribute, project config is for the domain context and conventions that make this specific codebase work. A plugin might provide a `security-auditor` agent, while your `CLAUDE.md` explains your project's specific authentication architecture so that agent has the right context.
+
+### See it end to end: `example-project/`
+
+The section above describes the split; [`example-project/`](./example-project/)
+**demonstrates** it as runnable files. It is a small `orders-api` service that
+consumes the `api-guardian` plugin as its shared spine and layers six operating
+principles on top, each mapped to a real file:
+
+| Principle | Where in `example-project/` |
+|-----------|------------------------------|
+| MCP, sparingly | none (small service, no data layer) - see its `CLAUDE.md` |
+| CLIs over integrations | `.claude/settings.json` allow-list |
+| Allow-list, not deny-list | `.claude/settings.json` `permissions.allow` |
+| docs-as-code | `docs/architecture.md` + `.claude/hooks/check-docs-drift.sh` |
+| spec-first | `api/openapi.yaml` -> `make generate` -> `internal/gen/` |
+| CI/CD SDLC automation | `.github/workflows/ci.yml`, `infra/main.tf`, `policy/ci.rego` |
+
+Start with [`example-project/README.md`](./example-project/README.md).
 
 ## Getting Started
 

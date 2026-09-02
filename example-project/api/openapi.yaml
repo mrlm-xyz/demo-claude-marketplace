@@ -1,0 +1,92 @@
+openapi: 3.1.0
+info:
+  title: orders-api
+  version: 1.0.0
+  description: >
+    The contract is the source of truth. Models and server stubs are generated
+    from this file with `make generate`. Hand-editing generated code is a bug.
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Create an order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewOrder" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "400":
+          $ref: "#/components/responses/Problem"
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Fetch an order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "404":
+          $ref: "#/components/responses/Problem"
+    delete:
+      operationId: cancelOrder
+      summary: Cancel an order (only before it ships)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204": { description: Cancelled }
+        "409":
+          $ref: "#/components/responses/Problem"
+components:
+  responses:
+    Problem:
+      description: RFC 9457 problem+json
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+  schemas:
+    OrderStatus:
+      type: string
+      enum: [pending, confirmed, shipped, delivered, cancelled]
+    NewOrder:
+      type: object
+      required: [customerId, amountMinor, currency]
+      properties:
+        customerId: { type: string, format: uuid }
+        amountMinor:
+          type: integer
+          description: Amount in minor units (cents). Never a float.
+        currency: { type: string, minLength: 3, maxLength: 3 }
+    Order:
+      allOf:
+        - $ref: "#/components/schemas/NewOrder"
+        - type: object
+          required: [id, status]
+          properties:
+            id: { type: string, format: uuid }
+            status: { $ref: "#/components/schemas/OrderStatus" }
+    Problem:
+      type: object
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }

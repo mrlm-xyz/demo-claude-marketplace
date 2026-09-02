@@ -1,0 +1,12 @@
+{
+  "//": "Copy to settings.local.json for personal, machine-local overrides. This file is gitignored in a real project so it never reaches the team.",
+  "permissions": {
+    "allow": [
+      "Bash(docker compose up:*)",
+      "Bash(docker compose down:*)"
+    ]
+  },
+  "env": {
+    "ORDERS_API_LOCAL_PORT": "8081"
+  }
+}
