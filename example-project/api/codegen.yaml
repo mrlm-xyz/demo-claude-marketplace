@@ -1,0 +1,9 @@
+# oapi-codegen config. Models and a chi server are generated from openapi.yaml.
+# This is the "generate the models from the spec" half of spec-first.
+package: gen
+output: ../internal/gen/orders.gen.go
+generate:
+  models: true
+  chi-server: true
+  strict-server: true
+  embedded-spec: true

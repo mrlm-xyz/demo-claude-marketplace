@@ -1,0 +1,3 @@
+# Generated code lands here (orders.gen.go) after `make generate`.
+# It is committed so CI can verify it is in sync with the spec, but it is never
+# hand-edited. Change api/openapi.yaml and regenerate instead.
